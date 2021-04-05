@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.five_star.boringlist.ui.theme.BoringListTheme
 const val TAG = "MainActivity"
 class MainActivity : ComponentActivity() {
@@ -40,7 +41,7 @@ fun MyApp(content: @Composable () -> Unit) {
 fun MyScreenContent(names: List<String> = List(1000) { "Hello Android #$it" }) {
     Scaffold(topBar = { } ,
         //floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { FloatingActionButtonDemo() }
+        floatingActionButton = { AddItem() }
         , content = {
             BoringList(names = names)
         })
@@ -60,7 +61,7 @@ fun BoringList(names: List<String>) {
 }
 
 @Composable
-fun FloatingActionButtonDemo() {
+fun AddItem() {
     FloatingActionButton(
         onClick = { Log.d(TAG, "FAB clicked")}
     ) {
