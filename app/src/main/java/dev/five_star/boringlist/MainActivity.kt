@@ -1,7 +1,6 @@
 package dev.five_star.boringlist
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -12,19 +11,23 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.five_star.boringlist.ui.theme.BoringListTheme
+
 const val TAG = "MainActivity"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyApp {
-                MyScreenContent()
+                MyScreenContent(mainViewModel = MainViewModel())
             }
         }
     }
@@ -38,18 +41,18 @@ fun MyApp(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun MyScreenContent(names: List<String> = List(1000) { "Hello Android #$it" }) {
-    Scaffold(topBar = { } ,
+fun MyScreenContent(mainViewModel: MainViewModel = viewModel()) {
+    val names: List<String> by mainViewModel.names.observeAsState(emptyList())
+    Scaffold(topBar = { },
         //floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { AddItem() }
-        , content = {
+        floatingActionButton = { AddItem { mainViewModel.addListItem() } }, content = {
             BoringList(names = names)
         })
 }
 
 @Composable
 fun BoringList(names: List<String>) {
-    LazyColumn() {
+    LazyColumn(reverseLayout = true) {
         items(items = names) { name ->
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(text = name, style = MaterialTheme.typography.body1)
@@ -61,11 +64,13 @@ fun BoringList(names: List<String>) {
 }
 
 @Composable
-fun AddItem() {
+fun AddItem(addListItem: () -> Unit) {
     FloatingActionButton(
-        onClick = { Log.d(TAG, "FAB clicked")}
+        onClick = {
+            addListItem()
+        }
     ) {
-        Icon(Icons.Filled.Add,"")
+        Icon(Icons.Filled.Add, "")
     }
 }
 
