@@ -3,7 +3,9 @@ package dev.five_star.boringlist
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +15,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,10 +48,15 @@ fun MyApp(content: @Composable () -> Unit) {
 @Composable
 fun MyScreenContent(mainViewModel: MainViewModel = viewModel()) {
     val names: List<String> by mainViewModel.names.observeAsState(emptyList())
+    // State to manage if the alert dialog is showing or not.
+    // Default is false (not showing)
+    val (showDialog, setShowDialog) =  remember { mutableStateOf(false) }
     Scaffold(topBar = { },
         //floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { AddItem { mainViewModel.addListItem() } }, content = {
+        floatingActionButton = { AddItem { setShowDialog(true) } }, content = {
             BoringList(names = names)
+            // Create alert dialog, pass the showDialog state to this Composable
+            DialogDemo(showDialog, setShowDialog, { mainViewModel.addListItem() })
         })
 }
 
@@ -64,13 +74,50 @@ fun BoringList(names: List<String>) {
 }
 
 @Composable
-fun AddItem(addListItem: () -> Unit) {
+fun AddItem(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = {
-            addListItem()
+//            addListItem()
+            onClick()
         }
     ) {
         Icon(Icons.Filled.Add, "")
+    }
+}
+@Composable
+fun DialogDemo(showDialog: Boolean, setShowDialog: (Boolean) -> Unit, addItem: () -> Unit) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = {
+            },
+            title = {
+                Text("Title")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // Change the state to close the dialog
+                        setShowDialog(false)
+                        addItem()
+                    },
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        // Change the state to close the dialog
+                        setShowDialog(false)
+                    },
+                ) {
+                    Text("Dismiss")
+                }
+            },
+            text = {
+                Text("This is a text on the dialog")
+            },
+        )
     }
 }
 
