@@ -9,9 +9,9 @@ class MainViewModel : ViewModel() {
     private val _names: MutableLiveData<List<String>> = MutableLiveData(mutableListOf())
     val names: LiveData<List<String>> = _names
 
-    fun addListItem() {
+    fun addListItem(name: String) {
         val newNames: MutableList<String> = _names.value?.toMutableList() ?: mutableListOf()
-        newNames.add("Hallo Android #${newNames.size}")
+        newNames.add(name)
         onNameChanges(newNames = newNames)
 
     }

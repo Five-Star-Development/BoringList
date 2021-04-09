@@ -1,27 +1,25 @@
 package dev.five_star.boringlist
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.five_star.boringlist.ui.theme.BoringListTheme
 
@@ -50,13 +48,13 @@ fun MyScreenContent(mainViewModel: MainViewModel = viewModel()) {
     val names: List<String> by mainViewModel.names.observeAsState(emptyList())
     // State to manage if the alert dialog is showing or not.
     // Default is false (not showing)
-    val (showDialog, setShowDialog) =  remember { mutableStateOf(false) }
-    Scaffold(topBar = { },
+    val showDialog=  remember { mutableStateOf(false) }
+    Scaffold(topBar = { TopAppBar(title = {Text("My boring list")}) },
         //floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { AddItem { setShowDialog(true) } }, content = {
+        floatingActionButton = { AddItem { showDialog.value = true } }, content = {
             BoringList(names = names)
             // Create alert dialog, pass the showDialog state to this Composable
-            DialogDemo(showDialog, setShowDialog, { mainViewModel.addListItem() })
+            DialogDemo(showDialog)
         })
 }
 
@@ -85,39 +83,72 @@ fun AddItem(onClick: () -> Unit) {
     }
 }
 @Composable
-fun DialogDemo(showDialog: Boolean, setShowDialog: (Boolean) -> Unit, addItem: () -> Unit) {
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = {
-            },
-            title = {
-                Text("Title")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        // Change the state to close the dialog
-                        setShowDialog(false)
-                        addItem()
-                    },
+fun DialogDemo(showDialog: MutableState<Boolean>, mainViewModel: MainViewModel = viewModel()) {
+    if (showDialog.value) {
+        Dialog(onDismissRequest = { showDialog.value = false}) {
+            Surface(
+                modifier = Modifier
+                    .height(200.dp)
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Text("Confirm")
+                    Text(modifier = Modifier.align(Alignment.TopStart),
+                        text = "When I am board I will:")
+                    var text by remember { mutableStateOf(TextFieldValue("")) }
+
+                    TextField(
+                        value = text,
+                        onValueChange = {
+                            text = it
+                        },
+                        label = { Text("Todo") })
+
+                    Button(
+                        modifier = Modifier.align(Alignment.BottomEnd),
+                        onClick = {
+                        mainViewModel.addListItem(text.text)
+                        showDialog.value = false
+                    }) {
+                        Text(text = "Add")
+                    }
                 }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        // Change the state to close the dialog
-                        setShowDialog(false)
-                    },
-                ) {
-                    Text("Dismiss")
-                }
-            },
-            text = {
-                Text("This is a text on the dialog")
-            },
-        )
+            }
+        }
+//        AlertDialog(
+//            onDismissRequest = {
+//            },
+//            title = {
+//                Text("Title")
+//            },
+//            confirmButton = {
+//                Button(
+//                    onClick = {
+//                        // Change the state to close the dialog
+//                        setShowDialog(false)
+//                        addItem()
+//                    },
+//                ) {
+//                    Text("Confirm")
+//                }
+//            },
+//            dismissButton = {
+//                Button(
+//                    onClick = {
+//                        // Change the state to close the dialog
+//                        setShowDialog(false)
+//                    },
+//                ) {
+//                    Text("Dismiss")
+//                }
+//            },
+//            text = {
+//                Text("This is a text on the dialog")
+//            },
+//        )
     }
 }
 
