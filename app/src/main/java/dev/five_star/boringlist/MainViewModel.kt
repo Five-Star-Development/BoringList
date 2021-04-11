@@ -6,17 +6,17 @@ import androidx.lifecycle.ViewModel
 
 class MainViewModel : ViewModel() {
 
-    private val _names: MutableLiveData<List<String>> = MutableLiveData(mutableListOf())
-    val names: LiveData<List<String>> = _names
+    private val _names: MutableLiveData<List<BoringItem>> = MutableLiveData(mutableListOf())
+    val names: LiveData<List<BoringItem>> = _names
 
-    fun addListItem() {
-        val newNames: MutableList<String> = _names.value?.toMutableList() ?: mutableListOf()
-        newNames.add("Hallo Android #${newNames.size}")
+    fun addListItem(todo: String, description: String) {
+        val newNames: MutableList<BoringItem> = _names.value?.toMutableList() ?: mutableListOf()
+        newNames.add(BoringItem(todo, description))
         onNameChanges(newNames = newNames)
 
     }
 
-    private fun onNameChanges(newNames: MutableList<String>) {
+    private fun onNameChanges(newNames: MutableList<BoringItem>) {
         _names.value = newNames
     }
 }
