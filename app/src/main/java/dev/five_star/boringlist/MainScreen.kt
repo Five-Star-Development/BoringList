@@ -19,7 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun MyScreenContent(mainViewModel: MainViewModel = viewModel()) {
-    val names: List<String> by mainViewModel.names.observeAsState(emptyList())
+    val names: List<BoringItem> by mainViewModel.names.observeAsState(emptyList())
     // State to manage if the alert dialog is showing or not.
     // Default is false (not showing)
     val showDialog = remember { mutableStateOf(false) }
@@ -33,12 +33,14 @@ fun MyScreenContent(mainViewModel: MainViewModel = viewModel()) {
 }
 
 @Composable
-private fun BoringList(names: List<String>) {
+private fun BoringList(names: List<BoringItem>) {
     LazyColumn(reverseLayout = true) {
         items(items = names) { name ->
             Column(modifier = Modifier.padding(24.dp)) {
-                Text(text = name, style = MaterialTheme.typography.body1)
-                Text(text = name, style = MaterialTheme.typography.caption)
+                Text(text = name.todo, style = MaterialTheme.typography.body1)
+                if (name.description.isNotBlank()) {
+                    Text(text = name.description, style = MaterialTheme.typography.caption)
+                }
             }
             Divider(color = Color.Black)
         }
@@ -65,31 +67,54 @@ private fun DialogDemo(
         Dialog(onDismissRequest = { showDialog.value = false }) {
             Surface(
                 modifier = Modifier
-                    .height(200.dp)
+                    .height(280.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
+                var todo by remember { mutableStateOf(TextFieldValue("")) }
+                var description by remember { mutableStateOf(TextFieldValue("")) }
+                var isChecked by remember { mutableStateOf(false) }
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    Text(
-                        modifier = Modifier.align(Alignment.TopStart),
-                        text = "When I am board I will:"
-                    )
-                    var text by remember { mutableStateOf(TextFieldValue("")) }
+                    Column(modifier = Modifier.align(Alignment.TopStart)) {
 
-                    TextField(
-                        value = text,
-                        onValueChange = {
-                            text = it
-                        },
-                        label = { Text("Todo") })
+                        Text(
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = "When I am board I will:"
+                        )
+
+                        TextField(
+                            value = todo,
+                            onValueChange = {
+                                todo = it
+                            },
+                            label = { Text("Todo") })
+
+                        Row(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)) {
+                            Checkbox(
+                                checked = isChecked,
+                                modifier = Modifier.padding(end = 8.dp),
+                                onCheckedChange = { isChecked = isChecked.not() }
+                            )
+                            Text(text = "Description")
+                        }
+
+                        if (isChecked) {
+                            TextField(
+                                value = description,
+                                onValueChange = {
+                                    description = it
+                                },
+                                label = { Text("Description") })
+                        }
+                    }
 
                     Button(
                         modifier = Modifier.align(Alignment.BottomEnd),
                         onClick = {
-                            mainViewModel.addListItem(text.text)
+                            mainViewModel.addListItem(todo.text, description.text)
                             showDialog.value = false
                         }) {
                         Text(text = "Add")
