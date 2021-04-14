@@ -1,3 +1,11 @@
 package dev.five_star.boringlist.model
 
-data class BoringItem(val todo: String, val description: String = "")
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "BoringList")
+data class BoringItem(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val todo: String,
+    val description: String = "")

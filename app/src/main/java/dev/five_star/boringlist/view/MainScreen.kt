@@ -13,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.five_star.boringlist.model.BoringDatabase
 import dev.five_star.boringlist.model.BoringItem
 import dev.five_star.boringlist.model.InMemoryBoringService
 import dev.five_star.boringlist.model.fakeData
@@ -32,9 +34,11 @@ const val TAG = "MainScreen"
 @Composable
 fun MainScreen() {
 
+    val context = LocalContext.current
     val factory = object : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            val repository = InMemoryBoringService()
+            val boringDao = BoringDatabase.getDatabase(context = context).boringDao()
+            val repository = InMemoryBoringService(boringDao)
 
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(

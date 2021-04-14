@@ -1,13 +1,10 @@
 package dev.five_star.boringlist.viewmodel
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.five_star.boringlist.model.BoringItem
 import dev.five_star.boringlist.model.BoringRepository
-import dev.five_star.boringlist.model.fakeData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -36,8 +33,13 @@ class MainViewModel(private val boringRepository: BoringRepository) : ViewModel(
     fun addListItem(todo: String, description: String) {
 
         val boringItems: MutableList<BoringItem> = _viewState.value.boringList.toMutableList()
-        boringItems.add(BoringItem(todo, description))
+        val boringItem = BoringItem(todo = todo, description = description)
+        boringItems.add(boringItem)
         onNameChanges(newNames = boringItems)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            boringRepository.addBoringItem(boringItem)
+        }
     }
 
     private fun onNameChanges(newNames: MutableList<BoringItem>) {
