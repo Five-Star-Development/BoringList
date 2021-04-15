@@ -9,6 +9,6 @@ interface BoringDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addBoringItem(item: BoringItem)
 
-    @Query("Select * FROM BoringList ORDER BY id ASC")
+    @Query("Select * FROM BoringList ORDER BY id DESC")
     suspend fun getAll(): List<BoringItem>
 }

@@ -22,7 +22,7 @@ class MainViewModel(private val boringRepository: BoringRepository) : ViewModel(
 
     private fun fetchBoringItems() {
         viewModelScope.launch {
-            val boringItems = boringRepository.fetchBoringItems()
+            val boringItems = boringRepository.getAllItems()
 
             _viewState.value = _viewState.value.copy(
                 boringList = boringItems,
@@ -31,20 +31,21 @@ class MainViewModel(private val boringRepository: BoringRepository) : ViewModel(
     }
 
     fun addListItem(todo: String, description: String) {
-
         val boringItems: MutableList<BoringItem> = _viewState.value.boringList.toMutableList()
         val boringItem = BoringItem(todo = todo, description = description)
         boringItems.add(boringItem)
-        onNameChanges(newNames = boringItems)
 
         viewModelScope.launch(Dispatchers.IO) {
             boringRepository.addBoringItem(boringItem)
+            onNameChanges()
         }
     }
 
-    private fun onNameChanges(newNames: MutableList<BoringItem>) {
-        _viewState.value = _viewState.value.copy(
-            boringList = newNames
-        )
+    private fun onNameChanges() {
+        viewModelScope.launch {
+            _viewState.value = _viewState.value.copy(
+                boringList = boringRepository.getAllItems()
+            )
+        }
     }
 }

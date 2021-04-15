@@ -17,7 +17,7 @@ abstract class BoringDatabase : RoomDatabase() {
         fun getDatabase(context: Context): BoringDatabase {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
-                tempInstance
+                return tempInstance
             }
             synchronized(this) {
                 val instance = Room.databaseBuilder(
