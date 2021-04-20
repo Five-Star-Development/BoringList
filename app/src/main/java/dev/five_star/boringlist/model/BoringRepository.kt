@@ -16,5 +16,7 @@ interface BoringRepository {
     suspend fun getAllItems(): List<BoringItem>
 
     suspend fun addBoringItem(boringItem: BoringItem)
+
+    suspend fun removeBoringItem(boringItem: BoringItem)
 }
 

@@ -11,4 +11,7 @@ interface BoringDao {
 
     @Query("Select * FROM BoringList ORDER BY id DESC")
     suspend fun getAll(): List<BoringItem>
+
+    @Delete
+    suspend fun removeBoringItem(item: BoringItem)
 }

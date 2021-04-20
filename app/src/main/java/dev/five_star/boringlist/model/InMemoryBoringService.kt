@@ -14,5 +14,7 @@ class InMemoryBoringService(private val boringDao: BoringDao) : BoringRepository
         boringDao.addBoringItem(boringItem)
     }
 
-
+    override suspend fun removeBoringItem(boringItem: BoringItem) {
+        boringDao.removeBoringItem(boringItem)
+    }
 }

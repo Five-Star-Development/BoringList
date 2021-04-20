@@ -1,5 +1,6 @@
 package dev.five_star.boringlist.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.five_star.boringlist.model.BoringItem
@@ -37,6 +38,17 @@ class MainViewModel(private val boringRepository: BoringRepository) : ViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             boringRepository.addBoringItem(boringItem)
+            onNameChanges()
+        }
+    }
+
+    fun removeListItem(boringItem: BoringItem) {
+        Log.d(TAG, "removeListItem $boringItem")
+        val boringItems: MutableList<BoringItem> = _viewState.value.boringList.toMutableList()
+        boringItems.remove(boringItem)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            boringRepository.removeBoringItem(boringItem)
             onNameChanges()
         }
     }
