@@ -1,12 +1,11 @@
 package dev.five_star.boringlist.view
 
 import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -55,7 +54,6 @@ fun MainScreenContent(state: MainViewState, mainViewModel: MainViewModel) {
 
     val showDialog = remember { mutableStateOf(false) }
     Scaffold(topBar = { TopAppBar(title = { Text("My boring list") }) },
-        //floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = { AddItem { showDialog.value = true } }, content = {
             BoringList(names = state.boringList, mainViewModel)
             // Create dialog, pass the showDialog state to this Composable
@@ -65,38 +63,51 @@ fun MainScreenContent(state: MainViewState, mainViewModel: MainViewModel) {
 
 @Composable
 private fun BoringList(names: List<BoringItem>, mainViewModel: MainViewModel) {
-    LazyColumn(reverseLayout = true) {
-        items(items = names) { name ->
-            Column {
-                BoringListItem(name = name, mainViewModel = mainViewModel)
-                Divider(color = Color.Black)
+    val listState = rememberLazyListState()
+    LazyColumn(
+        reverseLayout = true,
+        state = listState
+    ) {
+        itemsIndexed(
+            items = names,
+            itemContent = { index, item ->
+                Column {
+                    BoringListItem(
+                        item = item,
+                        mainViewModel = mainViewModel
+                    )
+                    Divider(color = Color.Black)
+                }
             }
-        }
+        )
     }
 }
 
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BoringListItem(name: BoringItem, mainViewModel: MainViewModel) {
-    var unread by remember { mutableStateOf(false) }
+fun BoringListItem(item: BoringItem, mainViewModel: MainViewModel) {
+    var delete by remember { mutableStateOf(false) }
     val dismissState = rememberDismissState(
         confirmStateChange = {
-            if (it == DismissValue.DismissedToEnd) unread = !unread
+            if (it == DismissValue.DismissedToEnd) {
+                delete = !delete
+            }
             it != DismissValue.DismissedToEnd
         }
     )
 
-    if (unread) {
-        Log.d(TAG, "remove $name")
-        mainViewModel.removeListItem(name)
-        unread = false
+    if (delete) {
+        Log.d(TAG, "remove $item")
+        delete = false
+        mainViewModel.removeListItem(item)
     }
 
     SwipeToDismiss(state = dismissState, background = { }) {
         Column(modifier = Modifier.padding(24.dp)) {
-            Text(text = name.todo, style = MaterialTheme.typography.body1)
-            if (name.description.isNotBlank()) {
-                Text(text = name.description, style = MaterialTheme.typography.caption)
+            Text(text = item.todo, style = MaterialTheme.typography.body1)
+            if (item.description.isNotBlank()) {
+                Text(text = item.description, style = MaterialTheme.typography.caption)
             }
         }
     }
