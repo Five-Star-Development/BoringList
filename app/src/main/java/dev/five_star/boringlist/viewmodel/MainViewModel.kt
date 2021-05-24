@@ -44,8 +44,8 @@ class MainViewModel(private val boringRepository: BoringRepository) : ViewModel(
 
     fun removeListItem(boringItem: BoringItem) {
         Log.d(TAG, "removeListItem $boringItem")
-        val boringItems: MutableList<BoringItem> = _viewState.value.boringList.toMutableList()
-        boringItems.remove(boringItem)
+//        val boringItems: MutableList<BoringItem> = _viewState.value.boringList.toMutableList()
+//        boringItems.remove(boringItem)
 
         viewModelScope.launch(Dispatchers.IO) {
             boringRepository.removeBoringItem(boringItem)
